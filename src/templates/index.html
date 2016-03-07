@@ -1,0 +1,21 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}OpenWRT Stations{% endblock %}
+{% block scripts %}
+    <script type=text/javascript src="{{url_for('static', filename='jquery-1.12.0.js') }}"></script>
+{% endblock %}
+{% block content%}
+    <h3>Associated Stations</h3>
+    <div id="station_tables">
+        <table>
+            <thead>
+                <tr>
+                    <th>Router</th>
+                    <th>Mac Address</th>
+                    <th>Alias</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

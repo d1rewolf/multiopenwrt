@@ -1,0 +1,68 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}OpenWRT Stations{% endblock %}
+{% block head %}
+  {{super()}}
+  <link href="{{url_for('static', filename='jquery.dataTables.min.css') }}" rel="stylesheet">
+{% endblock %}
+{% block content%}
+<h3>OpenWRT Stations</h3>
+<div id="station_table">
+    <table id="station_table" class="table table-striped table-bordered table-condensed">
+        <thead>
+        <tr>
+            <th>Access Point</th>
+            <th>DNS or Alias</th>
+            <th>Mac Address</th>
+            <th>IP Address</th>
+            <th>Signal</th>
+            <th>Signal Avg</th>
+            <th>Interfaces</th>
+            <th>Connected Time</th>
+            <th>Inactive Time</th>
+            <th>Tx Bytes</th>
+            <th>Tx Packets</th>
+            <th>Tx Bitrate</th>
+            <th>Rx Bytes</th>
+            <th>Rx Packets</th>
+            <th>Rx Bitrate</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for router in routers %}
+        {% for mac, station in router.stations.iteritems() %}
+            <tr>
+                <td>{{ router.name }} </td>
+                <td>{{ station.domain_name }}</td>
+                <td>{{ station.mac_address }}</td>
+                <td>{{ station.ip_address }}</td>
+                <td>{{ station.signal }}</td>
+                <td>{{ station.signal_avg }}</td>
+                <td><small>{{ station.interfaces }}</small></td>
+                <td>{{ station.connected_time }}</td>
+                <td>{{ station.inactive_time }}</td>
+                <td>{{ station.tx_bytes }}</td>
+                <td>{{ station.tx_packets }}</td>
+                <td>{{ station.tx_bitrate }}</td>
+                <td>{{ station.rx_bytes }}</td>
+                <td>{{ station.rx_packets }}</td>
+                <td>{{ station.rx_bitrate }}</td>
+            </tr>
+        {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block scripts %}
+    {{super()}}
+    <script type=text/javascript src="{{url_for('static', filename='jquery-1.12.0.js') }}"></script>
+    <script type=text/javascript src="{{url_for('static', filename='jquery.dataTables.min.js') }}"></script>
+    <script type=text/javascript>
+        $(document).ready(function () {
+            $('table#station_table').DataTable( {
+                paging: false,
+            });
+        });
+    </script>
+{% endblock %}
+
