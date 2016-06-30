@@ -118,7 +118,11 @@ def parse_station_string(station_string, mac_aliases):
                     if station.mac_address in mac_aliases.keys():
                         station.domain_name = mac_aliases[station.mac_address]
                     elif station.ip_address:
-                        dns_info = socket.gethostbyaddr(station.ip_address)
+                        dns_info = None
+                        try:
+                            dns_info = socket.gethostbyaddr(station.ip_address)
+                        except:
+                            pass
                         if dns_info:
                             station.domain_name = dns_info[0]
                     else:
