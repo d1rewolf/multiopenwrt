@@ -53,12 +53,15 @@ class Station:
         self.domain_name = ''
 
         # these keys should be the same as the field names based on testing
-        different_names = ["wmm/wme"]
+        special_names = ["wmm/wme", "connected_time"]
         for k, v in parsed_vals.iteritems():
-            if k not in different_names:
+            if k not in special_names:
                 setattr(self, k, v)
 
         self.wmm_wme = parsed_vals["wmm/wme"]
+        import datetime
+        seconds = int(parsed_vals["connected_time"].split(" ")[0])
+        self.connected_time = datetime.timedelta(seconds=seconds)
         self.mac_address = self.name.split(" ")[1]
 
 
@@ -131,5 +134,6 @@ def parse_station_string(station_string, mac_aliases):
                 else:
                     stations[station.mac_address].interfaces += ":%s" % ifc
     return stations
+
 
 
