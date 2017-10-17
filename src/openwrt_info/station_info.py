@@ -24,12 +24,15 @@ class Station:
         try:
             for line in list:          
                 if line != '' and line != 'None':
-                    fieldname, content = re.split(r'\t{0,}', line)
-                    fieldname = fieldname.rstrip().replace(" ", "_").replace(":", "")
+                    print "Splitting line: %s" % line
+                    fieldname, content = re.split(r':\t{0,}', line)
+                    fieldname = fieldname.rstrip().replace(" ", "_")
                     parsed_vals[fieldname.lower()] = content.lstrip().rstrip()
         except Exception as e:
-            print e
-            sys.exit(9)
+            print "Exception %s" % e
+            t, o, tb = sys.exc_info()
+            print "%s :: %s :: %s" % (t, o, tb.tb_lineno)
+            sys.exit(99)
         
         self.inactive_time = None
         self.interfaces = ""
@@ -105,34 +108,37 @@ def parse_station_string(station_string, mac_aliases):
     ifc_regex = r'\[\[\[\[([^\]]+)\]\]\]\]'
     wifi_interfaces = re.findall(ifc_regex, remote_data)
     string = re.sub(ifc_regex, '', remote_data)
-    for ifc in wifi_interfaces:
-        lines = [x.lstrip() for x in string.split("\n")]
-        indices = [lines.index(x) for x in lines if re.search(r'Station .*(on.*)', x)]
-        indices.append(None)
-        for slice_idx in xrange(0, len(indices)):
-            if indices[slice_idx] is not None:
-                x, y = indices[slice_idx], indices[slice_idx+1]
-                station = Station(lines[x:y])
-                # if station record already exists, don't re-add...just add
-                # this interface to that station's list of ifcs
-                if station.mac_address not in stations.keys():
-                    if station.mac_address in arp_dict.keys():
-                        station.ip_address = arp_dict[station.mac_address]
-                    if station.mac_address in mac_aliases.keys():
-                        station.domain_name = mac_aliases[station.mac_address]
-                    elif station.ip_address:
-                        dns_info = None
-                        try:
-                            dns_info = socket.gethostbyaddr(station.ip_address)
-                        except:
-                            pass
-                        if dns_info:
-                            station.domain_name = dns_info[0]
+    try:
+        for ifc in wifi_interfaces:
+            lines = [x.lstrip() for x in string.split("\n")]
+            indices = [lines.index(x) for x in lines if re.search(r'Station .*(on.*)', x)]
+            indices.append(None)
+            for slice_idx in xrange(0, len(indices)):
+                if indices[slice_idx] is not None:
+                    x, y = indices[slice_idx], indices[slice_idx+1]
+                    station = Station(lines[x:y])
+                    # if station record already exists, don't re-add...just add
+                    # this interface to that station's list of ifcs
+                    if station.mac_address not in stations.keys():
+                        if station.mac_address in arp_dict.keys():
+                            station.ip_address = arp_dict[station.mac_address]
+                        if station.mac_address in mac_aliases.keys():
+                            station.domain_name = mac_aliases[station.mac_address]
+                        elif station.ip_address:
+                            dns_info = None
+                            try:
+                                dns_info = socket.gethostbyaddr(station.ip_address)
+                            except:
+                                pass
+                            if dns_info:
+                                station.domain_name = dns_info[0]
+                        else:
+                            station.domain_name = "NOT AVAILABLE"
+                        stations[station.mac_address] = station
                     else:
-                        station.domain_name = "NOT AVAILABLE"
-                    stations[station.mac_address] = station
-                else:
-                    stations[station.mac_address].interfaces += ":%s" % ifc
+                        stations[station.mac_address].interfaces += ":%s" % ifc
+    except BaseException as e:
+      pass #import pdb; pdb.set_trace();
     return stations
 
 
